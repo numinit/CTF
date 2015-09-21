@@ -337,6 +337,16 @@ Ok, let's check out `method_addskeletal` next.
 
 The first bit of the method appears to conditionally assign `v2` based on `a2`. We deduced that this was the [`RSTRING_PTR` macro](https://github.com/ruby/ruby/blob/ruby_2_2/include/ruby/ruby.h#L865), since RSTRING_NOEMBED works out to 0x2000.
 
+#### Aside: Ruby strings
+
+`VALUE` is a 64-bit Ruby reference. Some types (e.g. numbers) have their values embedded directly in the VALUE if they fit, and take up no heap space.
+
+Ruby strings (`RString` instances) are staticly sized, and are allocated very quickly using an arena where each entry fits a 24-byte string. If `RSTRING_NOEMBED` is set, the 24 bytes contain a heap pointer instead of the string itself, so `RSTRING_PTR` returns the heap pointer rather than an offset within the `RString`.
+
+See [this blog entry](http://patshaughnessy.net/2012/1/4/never-create-ruby-strings-longer-than-23-characters) for more information.
+
+#### Control flow
+
 Next, a block of size 0x118 is allocated, and the first 16 quadwords offset from the string pointer are copied over via an unrolled `memcpy`. The 34th quadword is assigned to `gooder`. `memcmp`, also unrolled here, is called afterwards against the string "thanks mr skeletal", but the two branches resulting from the memcmp are essentially the same, except for the "meme successfully added" / "im going to steal all ur calcuims" string and the assignment of `badder` instead of `gooder` (which, incidentally, just returns if its argument is equal to zero).
 
 The same counter and types_tracker trickery is executed here too, for a control flow that looks like this:
