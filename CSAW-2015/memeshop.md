@@ -341,9 +341,7 @@ The first bit of the method appears to conditionally assign `v2` based on `a2`. 
 
 `VALUE` is a 64-bit Ruby reference. Some types (e.g. numbers) have their values embedded directly in the VALUE if they fit, and take up no heap space.
 
-Ruby strings (`RString` instances) are staticly sized, and are allocated very quickly using an arena where each entry fits a 24-byte string. If `RSTRING_NOEMBED` is set, the 24 bytes contain a heap pointer instead of the string itself, so `RSTRING_PTR` returns the heap pointer rather than an offset within the `RString`.
-
-See [this blog entry](http://patshaughnessy.net/2012/1/4/never-create-ruby-strings-longer-than-23-characters) for more information.
+Ruby strings (`RString` instances) are allocated very quickly using an arena where each entry fits a string that is, at most, 24 bytes long. If `RSTRING_NOEMBED` is set, the 24 bytes contain a heap pointer instead of the string itself, so `RSTRING_PTR` returns the heap pointer rather than an offset within the `RString` for strings longer than 24 bytes. See [this blog entry](http://patshaughnessy.net/2012/1/4/never-create-ruby-strings-longer-than-23-characters) for more information.
 
 #### Control flow
 
