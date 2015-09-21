@@ -116,7 +116,7 @@ sync:x:4:65534:sync:/bin:/bin/sync
 ...
 ```
 
-Why, yes we can! Let's try a wildcard, like `/tmp/\*`.
+Why, yes we can! Let's try a wildcard, like `/tmp/*`.
 
 ```
 > p
@@ -261,7 +261,7 @@ def print_receipt
 end
 ```
 
-This method prints the receipt. Of note, we can read any file on the disk, except for files containing `flag` and wildcards. So, we need a shell.
+This method prints the receipt. Of note, we can read any file on the disk, except for files containing `flag` and `*`. So, we need a shell.
 
 ```ruby
 def checkouter
