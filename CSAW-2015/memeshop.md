@@ -427,7 +427,7 @@ valid:
 invalid:
     return rb_str_new_static("you are going to get memed on so hard with no calcium");
 }
-```c
+```
 
 ## Type confusion in mememachine.so
 
