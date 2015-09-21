@@ -261,7 +261,7 @@ def print_receipt
 end
 ```
 
-This method prints the receipt. Of note, we can read any file on the disk, except for files containing `flag` and `*`. So, we need a shell.
+This method prints the receipt. Of note, we can read any file on the disk, except for files containing `flag` and `*`. Since the filesystem is case-sensitive (OS X, anyone?), we need a shell.
 
 ```ruby
 def checkouter
