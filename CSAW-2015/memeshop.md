@@ -381,7 +381,7 @@ The layout of this malloc'ed block looks like the following, with the correspond
 copied string  undefined      gooder    zero      undefined
 ```
 
-Note that Ruby strings that are less than or equal to 24 bytes in length will result in bits of `RString` instances from the `RString` arena being copied to the malloced block.
+**Note:** Ruby strings that are less than or equal to 24 bytes in length will result in bits of `RString` instances from the `RString` arena being copied to the malloced block, since we are essentially running an out-of-bounds `memcpy`. We can actually pick which region of the heap we use, and our team ended up using the larger strings because.
 
 ### method_checkout
 
@@ -466,7 +466,7 @@ Let's fill the function pointer with a pointer to `system()`. Since we can downl
 
 To fill `types` with zeroes, we request 256 of any meme (for example, doge). To fill `memerz` with skeletals, we request 256 more skeletals.
 
-To figure out where to point into the heap, we can look at the process's maps after spraying doge, estimate how much the heap will expand, and evenly distribute arguments to `system` over the estimated new part of the heap. Since we're making reasonably large allocations and limiting our search space to the *new* part of the heap, there is a high chance that one of our `system` calls will end up in the middle of one of our sleds of spaces.
+To figure out where to point into the heap, we can look at the process's maps after spraying doge, estimate how much the heap will expand, and evenly distribute arguments to `system` over the estimated new part of the heap. Since we're making reasonably large allocations and limiting our search space to the *new* part of the heap, there is a high chance that one of our `system` calls will end up in the middle of one of our sleds of spaces either allocated by Ruby or by `mememachine.so`.
 
 ```
 >>> Initial maps
