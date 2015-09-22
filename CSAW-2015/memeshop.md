@@ -381,7 +381,7 @@ The layout of this malloc'ed block looks like the following, with the correspond
 copied string  undefined      gooder    zero      undefined
 ```
 
-**Note:** Ruby strings that are less than or equal to 24 bytes in length will result in bits of `RString` instances from the `RString` arena being copied to the malloced block, since we are essentially running an out-of-bounds `memcpy`. We can actually pick which region of the heap we use, and our team ended up using the larger strings because.
+**Note:** Ruby strings that are less than or equal to 24 bytes in length will result in bits of `RString` instances from the `RString` arena being copied to the malloced block, since we are essentially running an out-of-bounds `memcpy`. We can actually pick which region of the heap we use, and our team ended up using the larger strings because heap spray worked better.
 
 ### method_checkout
 
