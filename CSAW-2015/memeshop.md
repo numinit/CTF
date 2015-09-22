@@ -381,6 +381,8 @@ The layout of this malloc'ed block looks like the following, with the correspond
 copied string  undefined      gooder    zero      undefined
 ```
 
+Note that Ruby strings that are less than or equal to 24 bytes in length will result in bits of `RString` instances from the `RString` arena being copied to the malloced block.
+
 ### method_checkout
 
 Finally, what does checkout do?
