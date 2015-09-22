@@ -335,11 +335,11 @@ Ok, let's check out `method_addskeletal` next.
 
 ![ida_method_addskeletal_1](memeshop/img/ida_method_addskeletal_1.png)
 
-The first bit of the method appears to conditionally assign `v2` based on `a2`. We deduced that this was the [`RSTRING_PTR` macro](https://github.com/ruby/ruby/blob/ruby_2_2/include/ruby/ruby.h#L865), since RSTRING_NOEMBED works out to 0x2000.
+The first bit of the method appears to conditionally assign `v2` based on `a2`. We deduced that this was the [`RSTRING_PTR` macro](https://github.com/ruby/ruby/blob/ruby_2_2/include/ruby/ruby.h#L865), since `RSTRING_NOEMBED` works out to `0x2000`.
 
 #### Aside: Ruby strings
 
-`VALUE` is a 64-bit Ruby reference. Some types (e.g. numbers) have their values embedded directly in the VALUE if they fit, and take up no heap space.
+`VALUE` is a 64-bit Ruby reference. Some types (e.g. numbers) have their values embedded directly in the `VALUE` if they fit, and take up no heap space.
 
 Ruby strings (`RString` instances) are allocated very quickly using an arena where each entry fits a string that is, at most, 24 bytes long. If `RSTRING_NOEMBED` is set, the 24 bytes contain a heap pointer instead of the string itself, so `RSTRING_PTR` returns the heap pointer rather than an offset within the `RString` for strings longer than 24 bytes. See [this blog entry](http://patshaughnessy.net/2012/1/4/never-create-ruby-strings-longer-than-23-characters) for more information.
 
@@ -347,7 +347,7 @@ Ruby strings (`RString` instances) are allocated very quickly using an arena whe
 
 Next, a block of size 0x118 is allocated, and the first 16 quadwords offset from the string pointer are copied over via an unrolled `memcpy`. The 34th quadword is assigned to `gooder`. `memcmp`, also unrolled here, is called afterwards against the string "thanks mr skeletal", but the two branches resulting from the memcmp are essentially the same, except for the "meme successfully added" / "im going to steal all ur calcuims" string and the assignment of `badder` instead of `gooder` (which, incidentally, just returns if its argument is equal to zero).
 
-The same counter and types_tracker trickery is executed here too, for a control flow that looks like this:
+The same `counter` and `types_tracker` trickery is executed here too, for a control flow that looks like this:
 
 ```c
 int32_t types_tracker = 0;
@@ -387,7 +387,7 @@ Finally, what does checkout do?
 
 ![ida_method_checkout](memeshop/img/ida_method_checkout.png)
 
-There's a call to `rb_fix2int` on the second argument (meme_count). If the meme count is <= 0, it jumps to the "successfully checked out" branch. Otherwise, it enters a loop from 0 to meme_count - 1, iterating over `memerz` and `types` in parallel.
+There's a call to `rb_fix2int` on the second argument (`meme_count`). If `meme_count` is <= 0, it jumps to the "successfully checked out" branch. Otherwise, it enters a loop from `0` to `meme_count - 1`, iterating over `memerz` and `types` in parallel.
 
 If type is 0, it reads a function pointer at `rax + 0x08` using `rax + 0x10` as a 32-bit argument. Otherwise, it reads a function pointer at `rax + 0x108` using `rax + 0x110` as a 32-bit argument. The rest is fairly irrelevant, because this is the core of the vulnerability in memeshop.
 
@@ -460,7 +460,7 @@ undefined function pointer function arg undefined
 
 ### My approach: using system() with heap spray
 
-Let's fill the function pointer with a pointer to `system()`. Since we can download any file, we can grab their version of libc and figure out with `objdump` that `system()` lives at address `0x00046640`. Since we can read `/proc/self/maps`, we can also figure out where libc is mapped, defeating ASLR. Since we only have 32 bits for the function argument, we can put it into the heap, which has addresses that fit in 32 bits. By reading `.bash_profile` for the CTF user, we can figure out that the flag is in `/home/ctf/flag`. We can concoct a decent argument to `system` by padding `cat /home/ctf/flag` with spaces, which will ultimately be ignored.
+Let's fill the function pointer with a pointer to `system()`. Since we can download any file, we can grab their version of libc and figure out with `objdump` that `system()` lives at address `0x00046640`. Since we can read `/proc/self/maps`, we can also figure out where libc is mapped, defeating ASLR. Since we only have 32 bits for the function argument, we can put it into the heap, which has addresses that fit in 32 bits. By reading `.bash_history` for the CTF user, we can figure out that the flag is in `/home/ctf/flag`. We can concoct a decent argument to `system` by padding `cat /home/ctf/flag` with spaces, which will ultimately be ignored.
 
 To fill `types` with zeroes, we request 256 of any meme (for example, doge). To fill `memerz` with skeletals, we request 256 more skeletals.
 
