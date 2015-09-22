@@ -468,6 +468,8 @@ To fill `types` with zeroes, we request 256 of any meme (for example, doge). To 
 
 To figure out where to point into the heap, we can look at the process's maps after spraying doge, estimate how much the heap will expand, and evenly distribute arguments to `system` over the estimated new part of the heap. Since we're making reasonably large allocations and limiting our search space to the *new* part of the heap, there is a high chance that one of our `system` calls will end up in the middle of one of our sleds of spaces either allocated by Ruby or by `mememachine.so`.
 
+Attacking malloc is interesting, because you essentially have to take a good guess to where your blocks will end up on the heap. If you can control how big your blocks are (or allocate lots of them), your guess will usually end up being right.
+
 ```
 >>> Initial maps
 Heap size:  000000000068b000
@@ -509,13 +511,13 @@ ur receipt is at L3RtcC9tZW1lMjAxNTA5MjEtMTI1NS0xeTZuaHhy
 flag{dwn: please tell us your meme. I'm not going to stop asking}
 ```
 
-[Exploit link](memeshop/exploit/memeheap.rb)
+[Exploit link](memeshop/exploit/memeheap.rb).
 
-### edwood777's approach: return oriented programming
+### edwood777's approach: single-jump [ROP](https://en.wikipedia.org/wiki/Return-oriented_programming)
 
 [Link](http://bitsforeveryone.blogspot.com/2015/09/writeup-csaw-2015-exploitation-400.html)
 
-edwood777's team found a couple handy instructions in libc:
+edwood777's team found a couple handy instructions in libc that he could make the program jump to.
 
 ```asm
 mov rdi, rax
