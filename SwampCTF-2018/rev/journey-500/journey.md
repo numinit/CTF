@@ -20,5 +20,4 @@ for char in target:
 print('flag{%s}' % pwd)
 ```
 
-flag{wkitfudrpxkgsvviq}
-
+`flag{wkitfudrpxkgsvviq}`
