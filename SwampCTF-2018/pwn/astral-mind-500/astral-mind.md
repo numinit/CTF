@@ -32,6 +32,10 @@ More neural network insanity. By the same author and uses the same libraries
 the author did for the "Pilgrim" puzzle, so hopefully will be easier than it
 otherwise would have been.
 
+Basically, you can directly edit the weights of the neurons in the network
+in addition to being able to control the input biases. This is a 2-layer
+network with 3 neurons in the hidden layer.
+
 There's a function named `call_function` that’s nice: it runs `arr[idx](void *)`
 for an index and an array of function pointers. It doesn’t check the index.
 
