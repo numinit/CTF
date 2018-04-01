@@ -2,7 +2,7 @@
 
 It's an executable packed with UPX. Run: `upx -d journey`
 
-You get an executable. It asks for a password. The password is the string that, when run against 0x328f3b67d25391, gronsfeld deciphers to "theresanotherstep"
+You get an executable. It asks for a password. The password is the string that, when run against 0x328f3b67d25391, [Gronsfeld deciphers](http://rumkin.com/tools/cipher/gronsfeld.php) to "theresanotherstep"
 
 ```python
 #!/usr/bin/env python
