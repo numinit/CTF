@@ -2,7 +2,7 @@
 
 Done as part of [ＶＡＰＯＲＳＥＣ](https://ctftime.org/team/45771).
 Didn't score points for it during the CTF due to waking up an hour before
-the CTF ended after working on it for several hours the prior night... :(
+the CTF ended :(
 
 $ nc chal1.swampctf.com 1122
 
@@ -49,14 +49,14 @@ There's a function named `call_function` called by menu 2 that's a good
 target: it runs `arr[idx](void *)` for an index and an array of function
 pointers, without checking the index whatsoever. Since `arr` is on the
 stack when a pointer to it is passed to `call_function`, we can write
-data to the stack and have the program jump there - if we can control
-the index with the neural network.
+a pointer to the stack in unrelated data and have the program jump to it -
+if we can control the index the pointer is loaded from with the neural network.
 
 ----
 
 That's as far as I got before falling asleep at 7 AM on the last day of
 SwampCTF. I woke up with less than an hour before the CTF ended, so this part
-was done after the CTF ended.
+was done afterwards.
 
 The stack looks like this:
 
@@ -70,26 +70,32 @@ double biases[4];
 ```
 
 The `fn_pointers` array is used to select options in Menu 2. Critically, the
-neural network is trained to only spit out 0, 1, or 2, which do exist. However,
+neural network is trained to only produce 0, 1, or 2, which do exist. However,
 since we can modify the neuron weights and biases, that can change...
 
 We can create an arbitrary function pointer by poking a specific IEEE 754
-value into the biases array. We can't do the weights array, since those
+double into the biases array. We can't use the weights array, since those
 are more important to the functionality of the neural network itself,
 and the network must actually "work" to compute the right index in the
 first place. If we train the neural network with modified input biases
 (which are just used for "data whitening", i.e. adding some signal to
 the input data), it will work as long as we tell the server that we
-used those biases - and we want to anyway, the biases will contain function
-pointers.
+used those biases - and we want to anyway, since the biases will contain
+our precious function pointers.
 
-Counting uint64s and doubles: index 19 is the magic index. print_flag lives at
-`0x00000555555555b01`, which is a bias of
+Counting uint64s and doubles on the stack, it's easy to figure out that index 19
+is the magic index.
+
+`print_flag` lives at `0x00000555555555b01`, which is a bias of
 `4.63557053862839141102593911777e-310` in IEEE 754. Train the neural network to
-spit out index 19(ish) with that bias and inform the server what weights and
+spit out index 19-22 with that as the bias, and inform the server what weights and
 biases we want. After running Menu 2 with our modified weights and biases,
-we get the flag.
+the program loads our crafted IEEE 754 double from the `biases` array and we
+get the flag.
 
 `flag{Fire_walk_with_me_}`
+
+Thanks to ambrose158 for a great couple challenges. [Awkward Pilgrim](https://github.com/numinit/CTF/blob/master/SwampCTF-2018/rev/pilgrim-500/pilgrim.md)
+used recurrent neural networks in a different way, and was a great way to warm up for this one.
 
 [Source](astral.py)
