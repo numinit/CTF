@@ -66,7 +66,7 @@ RUNNING ...
 
 Now we have the correct key, which makes coming up with z3 constraints way easier.
 We just have to minimize `timestamp` with the constraints `timestamp > time.time()` (i.e. it's in the future) and `token == 0xff4fdc56`.
-We also need to account for server/client clock difference and repeatedly run netcat when the "window of opportunity" presents itself. [Source here](window-connect.py).
+We also need to account for server/client clock difference and repeatedly run netcat when the "window of opportunity" presents itself. [Source here](window_connect.py).
 
 Wait a while, and then...
 
