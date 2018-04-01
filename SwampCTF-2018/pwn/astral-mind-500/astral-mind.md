@@ -90,3 +90,4 @@ spit out index 19(ish) with that bias and we get the flag.
 
 `flag{Fire_walk_with_me_}`
 
+[Code](astral.py)
